@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Generate Extension Icons</title>
+  <style>
+    body { font-family: system-ui, sans-serif; display: flex; flex-direction: column;
+           align-items: center; justify-content: center; min-height: 100vh; gap: 20px;
+           background: #f6f8fa; }
+    button { padding: 12px 28px; background: #0969da; color: #fff; border: none;
+             border-radius: 8px; font-size: 15px; cursor: pointer; }
+    button:hover { background: #0550ae; }
+    #previews { display: flex; gap: 20px; align-items: flex-end; }
+    .preview-item { display: flex; flex-direction: column; align-items: center; gap: 6px;
+                    font-size: 13px; color: #57606a; }
+    canvas { border-radius: 20%; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+    p { color: #57606a; font-size: 14px; text-align: center; }
+  </style>
+</head>
+<body>
+  <h2 style="margin:0">Markdown Viewer — Icon Generator</h2>
+  <p>Click the button once to download all three icon sizes.<br>
+     Move the downloaded files to the <code>icons/</code> folder.</p>
+
+  <div id="previews"></div>
+  <button onclick="generateAll()">Download All Icons (16 · 48 · 128 px)</button>
+
+  <script>
+    function drawIcon(size) {
+      const canvas = document.createElement('canvas');
+      canvas.width = canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const r = size * 0.18;
+
+      // Rounded background
+      ctx.beginPath();
+      ctx.moveTo(r, 0);
+      ctx.arcTo(size, 0, size, size, r);
+      ctx.arcTo(size, size, 0, size, r);
+      ctx.arcTo(0, size, 0, 0, r);
+      ctx.arcTo(0, 0, size, 0, r);
+      ctx.closePath();
+
+      // Gradient fill
+      const grad = ctx.createLinearGradient(0, 0, size, size);
+      grad.addColorStop(0, '#1e88e5');
+      grad.addColorStop(1, '#0d47a1');
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      if (size >= 48) {
+        // Draw a subtle document shape
+        const pw = size * 0.44, ph = size * 0.54;
+        const px = (size - pw) / 2, py = (size - ph) / 2;
+        const pr = size * 0.06;
+        ctx.beginPath();
+        ctx.moveTo(px + pr, py);
+        ctx.arcTo(px + pw, py, px + pw, py + ph, pr);
+        ctx.arcTo(px + pw, py + ph, px, py + ph, pr);
+        ctx.arcTo(px, py + ph, px, py, pr);
+        ctx.arcTo(px, py, px + pw, py, pr);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(255,255,255,0.12)';
+        ctx.fill();
+
+        // Lines on the document
+        ctx.fillStyle = 'rgba(255,255,255,0.55)';
+        const lx = px + pw * 0.15, lw = pw * 0.7, lh = size * 0.04;
+        const gap = size * 0.09;
+        for (let i = 0; i < 3; i++) {
+          const ly = py + ph * 0.25 + i * gap;
+          const w  = i === 2 ? lw * 0.6 : lw;
+          ctx.fillRect(lx, ly, w, lh);
+        }
+      }
+
+      // "MD" text
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      if (size <= 16) {
+        ctx.font = `bold ${size * 0.52}px system-ui`;
+        ctx.fillText('M', size / 2, size / 2);
+      } else {
+        ctx.font = `bold ${size * 0.22}px system-ui`;
+        ctx.fillText('MD', size / 2, size * 0.76);
+      }
+
+      return canvas;
+    }
+
+    function generateAll() {
+      [16, 48, 128].forEach(size => {
+        const canvas = drawIcon(size);
+        const a = document.createElement('a');
+        a.href = canvas.toDataURL('image/png');
+        a.download = `icon${size}.png`;
+        a.click();
+      });
+    }
+
+    // Show previews on load
+    const container = document.getElementById('previews');
+    [16, 48, 128].forEach(size => {
+      const canvas = drawIcon(size);
+      const wrapper = document.createElement('div');
+      wrapper.className = 'preview-item';
+      wrapper.appendChild(canvas);
+      const label = document.createElement('span');
+      label.textContent = `${size}×${size}`;
+      wrapper.appendChild(label);
+      container.appendChild(wrapper);
+    });
+  </script>
+</body>
+</html>

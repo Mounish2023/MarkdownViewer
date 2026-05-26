@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Markdown Viewer</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <span class="logo">⬡</span>
+    <h1>Markdown Viewer</h1>
+  </header>
+
+  <main>
+    <!-- Theme -->
+    <section>
+      <label class="section-label">Theme</label>
+      <div class="btn-group" id="theme-group">
+        <button data-val="light"  class="seg-btn">Light</button>
+        <button data-val="auto"   class="seg-btn active">Auto</button>
+        <button data-val="dark"   class="seg-btn">Dark</button>
+      </div>
+    </section>
+
+    <!-- Font size -->
+    <section>
+      <label class="section-label">Font size</label>
+      <div class="btn-group" id="size-group">
+        <button data-val="small"  class="seg-btn">Small</button>
+        <button data-val="medium" class="seg-btn active">Medium</button>
+        <button data-val="large"  class="seg-btn">Large</button>
+      </div>
+    </section>
+
+    <!-- Font family -->
+    <section>
+      <label class="section-label">Font family</label>
+      <div class="btn-group" id="family-group">
+        <button data-val="sans"  class="seg-btn active">Sans</button>
+        <button data-val="serif" class="seg-btn">Serif</button>
+        <button data-val="mono"  class="seg-btn">Mono</button>
+      </div>
+    </section>
+
+    <!-- Show TOC -->
+    <section class="row">
+      <label class="section-label" for="toc-toggle">Show sidebar / TOC</label>
+      <label class="switch">
+        <input type="checkbox" id="toc-toggle" checked>
+        <span class="track"></span>
+      </label>
+    </section>
+  </main>
+
+  <footer>
+    <button id="apply-btn">Apply</button>
+    <span id="status"></span>
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>
