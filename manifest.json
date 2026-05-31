@@ -3,8 +3,6 @@
   "name": "Markdown Viewer",
   "version": "1.0.0",
   "description": "Render local .md files beautifully in Chrome — with syntax highlighting, TOC, dark mode, and more.",
-  "permissions": ["storage"],
-  "host_permissions": ["file://*"],
   "content_scripts": [
     {
       "matches": ["file://*/*.md"],
@@ -26,7 +24,7 @@
   "web_accessible_resources": [
     {
       "resources": ["themes/hl-light.css", "themes/hl-dark.css"],
-      "matches": ["file://*"]
+      "matches": ["file://*/*.md"]
     }
   ],
   "icons": {

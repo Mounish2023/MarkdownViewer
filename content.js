@@ -131,21 +131,22 @@
   }
 
   // ── Load stored prefs ─────────────────────────────────────────────────────
-  chrome.storage.sync.get(
-    { theme: 'auto', fontSize: 'medium', fontFamily: 'sans', showToc: true },
-    prefs => {
-      applyTheme(prefs.theme);
-      document.body.dataset.fontSize   = prefs.fontSize;
-      document.body.dataset.fontFamily = prefs.fontFamily;
-      if (headings.length >= 2) setSidebar(prefs.showToc);
-    }
-  );
+  const prefs = {
+    theme:      localStorage.getItem('mv-theme')      || 'auto',
+    fontSize:   localStorage.getItem('mv-fontSize')   || 'medium',
+    fontFamily: localStorage.getItem('mv-fontFamily') || 'sans',
+    showToc:    localStorage.getItem('mv-showToc')    !== 'false',
+  };
+  applyTheme(prefs.theme);
+  document.body.dataset.fontSize   = prefs.fontSize;
+  document.body.dataset.fontFamily = prefs.fontFamily;
+  if (headings.length >= 2) setSidebar(prefs.showToc);
 
   // ── Theme button ──────────────────────────────────────────────────────────
   themeBtn.addEventListener('click', () => {
     const isDark = !document.body.classList.contains('mv-dark');
     setDark(isDark);
-    chrome.storage.sync.set({ theme: isDark ? 'dark' : 'light' });
+    localStorage.setItem('mv-theme', isDark ? 'dark' : 'light');
   });
 
   // ── Scroll: progress bar, back-to-top, active TOC item ───────────────────
@@ -181,13 +182,11 @@
     setSidebar(sidebar.classList.contains('mv-hidden'));
   });
 
-  // ── Listen for preference changes sent by popup ───────────────────────────
-  chrome.runtime.onMessage.addListener(msg => {
-    if (msg.type !== 'PREFS_UPDATED') return;
-    const p = msg.prefs;
-    applyTheme(p.theme);
-    document.body.dataset.fontSize   = p.fontSize;
-    document.body.dataset.fontFamily = p.fontFamily;
-    if (headings.length >= 2) setSidebar(p.showToc);
+  // ── Listen for preference changes via storage event ───────────────────────
+  window.addEventListener('storage', e => {
+    if (e.key === 'mv-theme')      applyTheme(e.newValue || 'auto');
+    if (e.key === 'mv-fontSize')   document.body.dataset.fontSize   = e.newValue || 'medium';
+    if (e.key === 'mv-fontFamily') document.body.dataset.fontFamily = e.newValue || 'sans';
+    if (e.key === 'mv-showToc' && headings.length >= 2) setSidebar(e.newValue !== 'false');
   });
 })();

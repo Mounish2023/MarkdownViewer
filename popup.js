@@ -1,6 +1,11 @@
 'use strict';
 
-const prefs = { theme: 'auto', fontSize: 'medium', fontFamily: 'sans', showToc: true };
+const prefs = {
+  theme:      localStorage.getItem('mv-theme')      || 'auto',
+  fontSize:   localStorage.getItem('mv-fontSize')   || 'medium',
+  fontFamily: localStorage.getItem('mv-fontFamily') || 'sans',
+  showToc:    localStorage.getItem('mv-showToc')    !== 'false',
+};
 
 // ── Wire segmented buttons ────────────────────────────────────────────────────
 function initGroup(groupId, prefKey) {
@@ -22,19 +27,7 @@ document.getElementById('toc-toggle').addEventListener('change', e => {
   prefs.showToc = e.target.checked;
 });
 
-// ── Load saved prefs and reflect them in the UI ───────────────────────────────
-chrome.storage.sync.get(
-  { theme: 'auto', fontSize: 'medium', fontFamily: 'sans', showToc: true },
-  saved => {
-    Object.assign(prefs, saved);
-
-    setActive('theme-group',  saved.theme);
-    setActive('size-group',   saved.fontSize);
-    setActive('family-group', saved.fontFamily);
-    document.getElementById('toc-toggle').checked = saved.showToc;
-  }
-);
-
+// ── Reflect saved prefs in UI ─────────────────────────────────────────────────
 function setActive(groupId, val) {
   const group = document.getElementById(groupId);
   group.querySelectorAll('.seg-btn').forEach(btn => {
@@ -42,19 +35,19 @@ function setActive(groupId, val) {
   });
 }
 
+setActive('theme-group',  prefs.theme);
+setActive('size-group',   prefs.fontSize);
+setActive('family-group', prefs.fontFamily);
+document.getElementById('toc-toggle').checked = prefs.showToc;
+
 // ── Apply button ──────────────────────────────────────────────────────────────
 document.getElementById('apply-btn').addEventListener('click', () => {
-  chrome.storage.sync.set(prefs, () => {
-    // Notify any open .md tab
-    chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-      if (tabs[0]) {
-        chrome.tabs.sendMessage(tabs[0].id, { type: 'PREFS_UPDATED', prefs })
-          .catch(() => {}); // tab may not be a .md page — ignore
-      }
-    });
+  localStorage.setItem('mv-theme',      prefs.theme);
+  localStorage.setItem('mv-fontSize',   prefs.fontSize);
+  localStorage.setItem('mv-fontFamily', prefs.fontFamily);
+  localStorage.setItem('mv-showToc',    prefs.showToc);
 
-    const status = document.getElementById('status');
-    status.textContent = 'Saved ✓';
-    setTimeout(() => { status.textContent = ''; }, 1800);
-  });
+  const status = document.getElementById('status');
+  status.textContent = 'Saved ✓  Reload the .md file to apply.';
+  setTimeout(() => { status.textContent = ''; }, 3000);
 });
